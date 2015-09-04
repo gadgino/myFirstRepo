@@ -1,12 +1,12 @@
 {
     "name": "todolist-tr",
-    "version": "0.1.0",
+    "version": "0.1.2",
     "dependencies": {
         "express": "~3.3.4",
         "socket.io": "~1.2.1",
         "ejs": "~2.1.4",
         "ent": "~0.1.0"
     },
-    "author": "Bologna openClassRoom:Mp=josephbologna",
-    "description": "Une todolist partagé en temps réel."
+    "author": "https://github.com/gadgino/myFirstRepo",
+    "description": "Notre todolist partagé en temps réel."
 }
