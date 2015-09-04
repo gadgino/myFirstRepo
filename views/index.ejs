@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<title>La todolist</title>
+		<style>
+			a.suptodo {
+				text-decoration:none;
+			}
+			li{
+				list-style-type: none;
+			}
+		</style>
+	</head>
+	
+	<body>
+		<h1>La todolist temps réel !</h1>
+		<!-- la zone de saisie -->
+		<form action="/" method="post" id="formulaire_todo">
+			<p>
+				<label for="newtodo">Que devons-nous faire ?</label>
+				<input type="text" name="newtodo" id="newtodo" autofocus />
+				<input type="submit" />
+			</p>
+		</form>
+		<!-- la zone d'affichage de la liste -->
+		<ul id="zone_todo">
+			<!-- on affiche la liste déjà presente sur le serveur -->
+			<% todolist.forEach(function(todo, index) { if(todo != "")%>
+				<li id="todo_<%= index %>"><a href="<%= index %>" class="suptodo" >✘</a> <%= todo %></li>
+			<% }); %>
+		</ul>
+		
+		<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script>
+			// Conversation avec le serveur
+			var socket = io.connect('http://localhost:8080'); //connection
+			socket.on('newtodo', function(data) { //le serveur a ajouté un todo
+				insereTodo(data.index,data.todo);
+			})
+			socket.on('suptodo', function(index){ //le serveur a suprimé un todo
+				supprimeTodo(index);
+			})
+			// fonction de callback deporté 
+			//	on s'en sert à l'initialisation et lords de l'ajout d'un todo
+			supClick = function(event){
+				index = this.href.substring(this.baseURI.length);
+				supprimeTodo(index);
+				socket.emit('suptodo',index); 
+				return false
+			};
+			//initialisation de click sur le lien supprimer d'un todo
+			$('.suptodo').on("click", supClick); 
+			// Lorsqu'on envoie le formulaire, on transmet le todo et en l'affiche sur la page
+			$('#formulaire_todo').submit(function(){
+				var newtodo = $('#newtodo').val();
+				socket.emit('newtodo',newtodo); // Transmet le todo aux serveur
+				$('#newtodo').val('').focus(); // Vide la zone d'nsertion et remet le focus dessus
+				return false; // Permet de bloquer l'envoie "classique du formulaire"
+			});
+			//gestion de l'ffichage de la todo liste
+			function insereTodo(index,todo){// affiche un todo
+				$('#zone_todo').prepend('<li id="todo_'+index+'"><a href="'+index+'" class="suptodo">✘</a> '+todo+'</li>');
+				//on ajoute l'evenement pour le click sur le lien supprimer
+				$('.suptodo[href="'+index+'"]').on("click", supClick);
+			}
+			function supprimeTodo(index){//supprime l'affichage d'un todo
+				$('#todo_'+index).remove();
+			}
+		</script>
+	</body>
+</html>
+
